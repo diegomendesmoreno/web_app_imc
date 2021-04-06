@@ -1,3 +1,8 @@
+window.onload = function() {
+    let botao = document.querySelector("#botao-calculo");
+    botao.addEventListener('click', calculoIMC);
+}
+
 function calculoIMC() {
     let form = document.querySelector("#dados-usuario");
     let peso = form.peso.value;
