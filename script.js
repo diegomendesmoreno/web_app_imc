@@ -1,56 +1,55 @@
 window.onload = function () {
     let botao = document.querySelector("#botao-calculo");
-    botao.addEventListener('click', calculoImcAPI);
+    botao.addEventListener('click', calculoImcAPIfetch);
+    imcTableGETfetch();
 }
 
-function criacaoRequest() {
-    var request = null;
-
-    try {
-        request = new XMLHttpRequest();
-    } catch (tryMS) {
-        try {
-            request = new ActiveXObject("Msxml2.XMLHTTP");
-        } catch (otherMS) {
-            try {
-                request = new ActiveXObject("Microsoft.XMLHTTP");
-            } catch (failed) {
-                console.log('no way to create XMLHttpRequest object')
-            }
-        }
-    }
-
-    return request;
-}
-
-function calculoImcAPI() {
+function calculoImcAPIfetch() {
     let form = document.querySelector("#dados-usuario");
     let peso = form.peso.value;
     let altura = form.altura.value;
 
-    var request = criacaoRequest();
-    if (!request) return null;
+    fetch('http://localhost:8080/imc/calculate', {
+        method: 'POST',
+        body: JSON.stringify({
+            'height': altura,
+            'weight': peso
+        }),
+        mode: 'cors',
+        redirect: 'follow',
+        headers: new Headers({
+            'Content-Type': 'application/json'
+        })
+    })
+        .then(function (response) {
+            let apiresponse = response.json().then(data => {
 
-    request.onreadystatechange = function () {
-        if (this.readyState === 4) {
-            if (this.status === 200) {
-                let apiResponse = JSON.parse(this.responseText);
+                console.log("Peso    : " + data.weight + " kg");
+                console.log("Altura  : " + data.height + " m");
+                console.log("IMC     : " + data.imc);
+                console.log("Classif.: " + data.imcDescription);
 
-                console.log("Peso    : " + peso + " kg");
-                console.log("Altura  : " + altura + " m");
-                console.log("IMC     : " + apiResponse.imc);
-                console.log("Classif.: " + apiResponse.imcDescription);
+                escreveResultado(parseFloat(data.imc).toFixed(1), data.imcDescription);
+            });
+        });
+}
 
-                escreveResultado(parseFloat(apiResponse.imc).toFixed(1), apiResponse.imcDescription);
-            }
-        }
-    };
-    request.open('POST', 'http://localhost:8080/imc/calculate', true);
-    request.setRequestHeader('Content-Type', 'application/json');
-    request.send(JSON.stringify({
-        'height': altura,
-        'weight': peso
-    }));
+function imcTableGETfetch() {
+    fetch('http://localhost:8080/imc/table', {
+        method: 'GET',
+        mode: 'cors',
+        redirect: 'follow',
+        headers: new Headers({
+            'Content-Type': 'application/json'
+        })
+    })
+        .then(function (response) {
+            let apiresponse = response.json().then(data => {
+
+                console.log("Tabela GET http://localhost:8080/imc/table:")
+                console.log(data);
+            });
+        });
 }
 
 function escreveResultado(imc, classificacao) {
