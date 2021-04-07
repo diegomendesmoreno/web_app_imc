@@ -6,7 +6,7 @@ window.onload = function() {
 function calculoIMC() {
     let form = document.querySelector("#dados-usuario");
     let peso = form.peso.value;
-    let altura = form.altura.value / 100;   // em metros
+    let altura = form.altura.value;
     let imcNumero = peso / (altura * altura);
     let imcClassificacao = classificaIMC(imcNumero);
 
