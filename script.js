@@ -4,6 +4,7 @@ window.onload = function () {
     imcTableGETfetch();
 }
 
+
 function calculoImcAPIfetch() {
     let form = document.querySelector("#dados-usuario");
     let peso = form.peso.value;
@@ -22,7 +23,9 @@ function calculoImcAPIfetch() {
         })
     })
         .then(function (response) {
-            let apiresponse = response.json().then(data => {
+            response.json().then(data => {
+                console.log("Resultado da Requisição POST");
+                console.log(data);
 
                 console.log("Peso    : " + data.weight + " kg");
                 console.log("Altura  : " + data.height + " m");
@@ -34,23 +37,6 @@ function calculoImcAPIfetch() {
         });
 }
 
-function imcTableGETfetch() {
-    fetch('http://localhost:8080/imc/table', {
-        method: 'GET',
-        mode: 'cors',
-        redirect: 'follow',
-        headers: new Headers({
-            'Content-Type': 'application/json'
-        })
-    })
-        .then(function (response) {
-            let apiresponse = response.json().then(data => {
-
-                console.log("Tabela GET http://localhost:8080/imc/table:")
-                console.log(data);
-            });
-        });
-}
 
 function escreveResultado(imc, classificacao) {
     let containerResultado = document.querySelector(".resultado");
@@ -80,6 +66,7 @@ function escreveResultado(imc, classificacao) {
     }
 }
 
+
 function classificaIMC(imc) {
     if (imc < 18.5) {
         return "Magreza";
@@ -93,4 +80,62 @@ function classificaIMC(imc) {
     else if (imc >= 30) {
         return "Obesidade";
     }
+}
+
+
+function imcTableGETfetch() {
+    fetch('http://localhost:8080/imc/table', {
+        method: 'GET',
+        mode: 'cors',
+        redirect: 'follow',
+        headers: new Headers({
+            'Content-Type': 'application/json'
+        })
+    })
+        .then(function (response) {
+            response.json().then(data => {
+                console.log("Resultado da Requisição GET");
+                console.log(data);
+
+                escreveTabela(data);
+            });
+        });
+}
+
+
+function escreveTabela(dataObject) {
+    // Novo Div
+    let tabelaImcDiv = document.createElement("div");
+    document.body.appendChild(tabelaImcDiv);
+
+    // Nova Tabela
+    let tabelaImcTable = document.createElement("table");
+    tabelaImcTable.setAttribute("id", "tabela-imc");
+    tabelaImcDiv.appendChild(tabelaImcTable);
+
+    // Header da Tabela
+    let tabelaImcHeaderTr = document.createElement("tr");
+    tabelaImcTable.appendChild(tabelaImcHeaderTr);
+    let tabelaImcHeaderThValor = document.createElement("th");
+    tabelaImcHeaderThValor.textContent = "Valor";
+    tabelaImcHeaderTr.appendChild(tabelaImcHeaderThValor);
+    let tabelaImcHeaderThDescricao = document.createElement("th");
+    tabelaImcHeaderThDescricao.textContent = "Descrição";
+    tabelaImcHeaderTr.appendChild(tabelaImcHeaderThDescricao);
+
+    Object.entries(dataObject).forEach(([tabelaValor, tabelaDescricao]) => {
+        console.log(tabelaValor + ' - ' + tabelaDescricao);
+        
+        let tabelaImcTr = document.createElement("tr");
+        tabelaImcTr.classList.add("tabela-imc-tr");
+        tabelaImcTable.appendChild(tabelaImcTr);
+
+        let tabelaImcTdValor = document.createElement("td");
+        tabelaImcTdValor.textContent = tabelaValor;
+        tabelaImcTr.appendChild(tabelaImcTdValor);
+
+        let tabelaImcTdDescricao = document.createElement("td");
+        tabelaImcTdDescricao.textContent = tabelaDescricao;
+        tabelaImcTr.appendChild(tabelaImcTdDescricao);
+    })
 }
